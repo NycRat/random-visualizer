@@ -1,0 +1,11 @@
+BasedOnStyle: LLVM  # You can start with a base style like LLVM, Google, etc.
+IndentWidth: 4      # Set the number of spaces per indentation level
+TabWidth: 4         # Set the number of spaces per tab (if tabs are used)
+UseTab: Never       # Never use tabs (always use spaces)
+BreakBeforeBraces: Attach  # Braces on the same line as control statement
+AllowShortFunctionsOnASingleLine: Empty  # Only allow empty functions to be on a single line
+ColumnLimit: 100    # Set maximum column width before wrapping lines
+AlignConsecutiveAssignments: true  # Align assignments to improve readability
+AlignConsecutiveDeclarations: true # Align declarations to improve readability
+ReflowComments: true  # Reflow comments so that they fit within the ColumnLimit
+SpaceBeforeParens: ControlStatements  # Space before parentheses in control statements (if, for, etc.)
