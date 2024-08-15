@@ -1,11 +1,13 @@
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl2.h"
+#include "implot.h"
 #include <SDL.h>
 #include <cstdlib>
 #include <ctime>
 #include <random>
 #include <stdio.h>
+#include <string>
 #include <vector>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <SDL_opengles2.h>
@@ -106,6 +108,7 @@ int main(int, char **) {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
@@ -139,6 +142,28 @@ int main(int, char **) {
     // For an Emscripten build we are disabling file-system access, so let's not
     // attempt to do a fopen() of the imgui.ini file. You may manually call
     // LoadIniSettingsFromMemory() to load settings from your own storage.
+    ImGui::LoadIniSettingsFromMemory(R"([Window][Debug##Default]
+Pos=60,60
+Size=400,400
+Collapsed=0
+
+[Window][Options]
+Pos=48,45
+Size=435,948
+Collapsed=0
+DockId=0x00000002,0
+
+[Window][Plot]
+Pos=485,45
+Size=1305,948
+Collapsed=0
+DockId=0x00000003,0
+
+[Docking][Data]
+DockNode    ID=0x00000001 Pos=48,45 Size=1742,948 Split=X
+DockNode  ID=0x00000002 Parent=0x00000001 SizeRef=435,889 Selected=0xE365E069
+DockNode  ID=0x00000003 Parent=0x00000001 SizeRef=1305,889 Selected=0x216029FA)",
+                                     0);
     io.IniFilename = nullptr;
     EMSCRIPTEN_MAINLOOP_BEGIN
 #else
@@ -249,12 +274,12 @@ int main(int, char **) {
                 switch (selected) {
                 case MT19937:
                     for (int i = 0; i < trials; i++) {
-                        values[mt19937_random(1, numValues - 2)]++;
+                        values[mt19937_random(0, numValues - 1)]++;
                     }
                     break;
                 case RAND:
                     for (int i = 0; i < trials; i++) {
-                        values[rand_random(1, numValues - 2)]++;
+                        values[rand_random(0, numValues - 1)]++;
                     }
                     break;
                 case PLUS_PLUS_PLUS:
@@ -286,7 +311,7 @@ int main(int, char **) {
                     break;
                 case BINARY_FLOAT:
                     for (int i = 0; i < trials; i++) {
-                        double low  = 1;
+                        double low  = 0;
                         double high = numValues - 1;
                         while (std::abs(low - high) > 0.1) {
                             double mid = (high + low) / 2;
@@ -312,8 +337,21 @@ int main(int, char **) {
             custom_graph_size.x -= 20;
             custom_graph_size.y -= 100;
 
-            ImGui::PlotLines("", values.data(), numValues, 0, nullptr, FLT_MAX, FLT_MAX,
-                             custom_graph_size);
+            {
+                ImPlot::BeginPlot("Plot", custom_graph_size);
+                ImPlot::SetupAxesLimits(0.0, numValues * 1.2, 0.0, 50000.0);
+
+                // TODO make it graph all of the stuff
+                ImPlot::PlotBars("Random", values.data(), numValues, 1.0, 0.0, ImPlotBarsFlags_None,
+                                 0, sizeof(float));
+
+                ImPlot::EndPlot();
+
+                // ImPlot::ShowDemoWindow();
+            }
+
+            // ImGui::PlotLines("", values.data(), numValues, 0, nullptr, FLT_MAX, FLT_MAX,
+            //                  custom_graph_size);
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate,
                         io.Framerate);
@@ -353,6 +391,7 @@ int main(int, char **) {
 #endif
 
     // Cleanup
+    ImPlot::DestroyContext();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();
     ImGui::DestroyContext();
