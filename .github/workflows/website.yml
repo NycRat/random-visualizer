@@ -48,12 +48,6 @@ jobs:
         make -f Makefile.emscripten
 
     - name: Deploy to GitHub Pages
-      uses: actions/upload-artifact@v4
-      with:
-        name: website
-        path: build/web/dist
-
-    - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
