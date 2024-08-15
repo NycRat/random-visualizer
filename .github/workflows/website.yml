@@ -20,11 +20,13 @@ jobs:
         ./emsdk install latest
         ./emsdk activate latest
         source ./emsdk_env.sh
+        which em++
 
     - name: Install SDL2
       run: |
         sudo apt-get update
         sudo apt-get install -y libsdl2-dev
+        which em++
 
     - name: Build project
       run: make -f Makefile.emscripten
